@@ -5,6 +5,6 @@ var global = {
 };
 
 function initialize() {
-    global.shooter = new BubbleShooter(20, 10);
+    global.shooter = new BubbleShooter(20, 20, 20, 10);
     global.shooter.bindToHTML();
 }

@@ -1,10 +1,10 @@
 
 class BubbleShooter {
-    constructor(width, height) {
+    constructor(width, height, setX, setY) {
         this.width = width;
         this.height = height;
 
-        this.field = this.createField();
+        this.field = this.createField(setX, setY);
 
         this.canvas = new Canvas();
         this.showArrowCanvas = new Canvas("showArrowCanvas");
@@ -13,7 +13,7 @@ class BubbleShooter {
         this.bindEventListeners();
     }
 
-    createField() {
+    createField(setX, setY) {
         var field = [],
             row = [],
             singleField,
@@ -22,7 +22,10 @@ class BubbleShooter {
         for (var i = 0; i < this.height; i++) {
             row = [];
             for (var n = 0; n < this.width; n++) {
-                singleField = new Field(n, i, offset);
+                if (i < setY && n < setX)
+                    singleField = new Field(n, i, offset);
+                else
+                    singleField = new Field(n, i, offset, true)
                 row.push(singleField);
             }
             field.push(row);
@@ -33,13 +36,17 @@ class BubbleShooter {
     }
 
     drawField() {
-        var offset = true;
+        var offset = true,
+            currField;
         for (var i = 0; i < this.height; i++) {
             for (var n = 0; n < this.width; n++) {
-                if (offset) {
-                    this.canvas.drawCircle(n * 40 + 40, i * 40 + 20, 18, this.field[i][n].color, 0, this.field[i][n].color);
-                } else {
-                    this.canvas.drawCircle(n * 40 + 20, i * 40 + 20, 18, this.field[i][n].color, 0, this.field[i][n].color);
+                currField = this.field[i][n];
+                if (!currField.isEmpty) {
+                    if (offset) {
+                        this.canvas.drawCircle(n * 40 + 40, i * 40 + 20, 18, currField.color, 0, currField.color);
+                    } else {
+                        this.canvas.drawCircle(n * 40 + 20, i * 40 + 20, 18, currField.color, 0, currField.color);
+                    }
                 }
             }
             offset = !offset;
@@ -112,18 +119,32 @@ class BubbleShooter {
 
         this.showArrowCanvas.canvas.addEventListener("click", function(event) {
             console.log("clicking");
+            var mousePos = this.showArrowCanvas.getMousePos(event);
+            var angle = Math.atan((800 - mousePos.y) / (Math.abs(420 - mousePos.x)));
+            console.log(angle * (180 / Math.PI));
         }.bind(this), false);
+    }
+
+    /*
+    * starts by positoin (410, 800)
+    */
+    shoot() {
+        while(true) {
+
+        }
     }
 
 }
 
 class Field {
-    constructor(posX, posY, isOffset) {
+    constructor(posX, posY, isOffset, isEmpty) {
         this.x = posX;
         this.y = posY;
         this.isOffset = isOffset;
+        this.isEmpty = isEmpty == null ? false : isEmpty;
 
-        this.color = this.getRandomColor();
+        if (!this.isEmpty)
+            this.color = this.getRandomColor();
 
         this.neighborsPosNoOffset = [
             [-1,  0],

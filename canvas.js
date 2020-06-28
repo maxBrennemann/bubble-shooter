@@ -1,7 +1,7 @@
 
 class Canvas {
     constructor(className) {
-        this.canvas = (new CanvasCreation()).createHiDPICanvas(820, 800);
+        this.canvas = (new CanvasCreation()).createHiDPICanvas(820, 820);
 
         if (className != null) {
             this.canvas.classList.add(className);
