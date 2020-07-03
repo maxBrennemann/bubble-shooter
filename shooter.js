@@ -159,11 +159,11 @@ class BubbleShooter {
                             collides = collides || this.checkColision(currX, currY, hitField.x * 40 + 20, hitField.y * 40 + 20, 18, 1);
                         }
 
-                        if (hitField.isOffset) {
+                        /*if (hitField.isOffset) {
                             this.canvas.drawCircle(hitField.x * 40 + 40, hitField.y * 40 + 20, 20, "white", 0, "orange");
                         } else {
                             this.canvas.drawCircle(hitField.x * 40 + 20, hitField.y * 40 + 20, 20, "white", 0, "orange");
-                        }
+                        }*/
                     }
 
                     if (collides)
@@ -171,6 +171,14 @@ class BubbleShooter {
                 }
 
                 if (flagBreak) {
+                    hit = Math.round(x / 40) - 1;
+                    hitField = this.field[this.height - i][hit];
+                    hitField = this.field[this.height - i][hit] = new Field(hit, this.height - i, hitField.isOffset);
+                    if (hitField.isOffset) {
+                        this.canvas.drawCircle(hitField.x * 40 + 40, hitField.y * 40 + 20, 18, hitField.color, 0, hitField.color);
+                    } else {
+                        this.canvas.drawCircle(hitField.x * 40 + 20, hitField.y * 40 + 20, 18, hitField.color, 0, hitField.color);
+                    }
                     break;
                 }
             } else {
