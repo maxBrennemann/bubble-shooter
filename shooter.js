@@ -114,23 +114,87 @@ class BubbleShooter {
         this.showArrowCanvas.canvas.addEventListener("mousemove", function(event) {
             var mousePos = this.showArrowCanvas.getMousePos(event);
             this.showArrowCanvas.clear();
-            this.showArrowCanvas.drawLine(410, 800, mousePos.x, mousePos.y);
+            this.showArrowCanvas.drawLine(410, 820, mousePos.x, mousePos.y);
         }.bind(this), false);
 
         this.showArrowCanvas.canvas.addEventListener("click", function(event) {
             console.log("clicking");
             var mousePos = this.showArrowCanvas.getMousePos(event);
-            var angle = Math.atan((800 - mousePos.y) / (Math.abs(420 - mousePos.x)));
-            console.log(angle * (180 / Math.PI));
+
+            /*
+             var angle = Math.atan((800 - mousePos.y) / (Math.abs(420 - mousePos.x)));
+             console.log(angle * (180 / Math.PI));
+            */
+
+            this.shoot(mousePos.x, mousePos.y)
         }.bind(this), false);
     }
 
     /*
-    * starts by positoin (410, 800)
+    * https://math.stackexchange.com/questions/228841/how-do-i-calculate-the-intersections-of-a-straight-line-and-a-circle
     */
-    shoot() {
-        while(true) {
+    shoot(currX, currY) {
+        var gradient = (currY - 820) / (currX - 410),
+            offsetY = 820 - gradient * 410,
+            x;
 
+        for (var i = 0; i < this.height; i++) {
+            x = (820 - i * 40 - offsetY) / gradient;
+            if (x > 0 ) {
+                var hit = Math.floor(x / 40);
+                var hitField;
+                var collides;
+
+                var flagBreak = false;
+
+                for (var n = hit - 1; n <= hit + 1; n++) {
+                    hitField = this.field[this.height - i - 1][n];
+                    if (hitField != null && !hitField.isEmpty) {
+
+                        if (hitField.isOffset) {
+                            collides = this.checkColision(currX, currY, hitField.x * 40 + 40, hitField.y * 40 + 20, 18, -1);
+                            collides = collides || this.checkColision(currX, currY, hitField.x * 40 + 40, hitField.y * 40 + 20, 18, 1);
+                        } else {
+                            collides = this.checkColision(currX, currY, hitField.x * 40 + 20, hitField.y * 40 + 20, 18, -1);
+                            collides = collides || this.checkColision(currX, currY, hitField.x * 40 + 20, hitField.y * 40 + 20, 18, 1);
+                        }
+
+                        if (hitField.isOffset) {
+                            this.canvas.drawCircle(hitField.x * 40 + 40, hitField.y * 40 + 20, 20, "white", 0, "orange");
+                        } else {
+                            this.canvas.drawCircle(hitField.x * 40 + 20, hitField.y * 40 + 20, 20, "white", 0, "orange");
+                        }
+                    }
+
+                    if (collides)
+                        flagBreak = true;
+                }
+
+                if (flagBreak) {
+                    break;
+                }
+            } else {
+                console.log("negative number, implementation is coming soon");
+            }
+        }
+    }
+
+    checkColision(currX, currY, circleX, circleY, radius, margin) {
+        currX = currX - margin * radius;
+
+        var gradient = (currY - 820) / (currX - (410 - margin * radius)),
+            offsetY = 820 - gradient * (410 - margin * radius),
+            A = gradient * gradient + 1,
+            B = 2 * (gradient * offsetY - gradient * circleY - circleX),
+            C = circleY * circleY - radius * radius + circleX * circleX - 2 * offsetY * circleY + offsetY * offsetY,
+            D = B * B - 4 * A * C;
+
+        this.showArrowCanvas.drawLine(410 - margin * radius, 820, currX, currY);
+            
+        if (D < 0) {
+            return false;
+        } else {
+            return true;
         }
     }
 
