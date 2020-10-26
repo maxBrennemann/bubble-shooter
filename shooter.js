@@ -9,8 +9,12 @@ class BubbleShooter {
         this.canvas = new Canvas();
         this.showArrowCanvas = new Canvas("showArrowCanvas");
 
+        this.showNextColor = document.createElement("span");
+
         this.drawField();
         this.bindEventListeners();
+
+        this.nextBubble = new Field(-1, -1, false);
     }
 
     createField(setX, setY) {
@@ -82,21 +86,17 @@ class BubbleShooter {
             toCheckBuffer.shift();
         }
 
-        for (var i = 0; i < removeBuffer.length; i++) {
-            this.remove(removeBuffer[i].x, removeBuffer[i].y);
+        if (removeBuffer.length >= 3) {
+            for (var i = 0; i < removeBuffer.length; i++) {
+                this.remove(removeBuffer[i].x, removeBuffer[i].y);
+            }
         }
     }
 
     /* removes a specific field from the field array */
     remove(posX, posY) {
-        var index = this.field.indexOf(posY),
-            offset = this.field[posY][posX].isOffset;
-        if (index > -1) {
-            index = this.field[posY].indexOf(posX);
-            if (index > -1) {
-                this.field[posY].splice(index, 1);
-            }
-        }
+        var offset = this.field[posY][posX].isOffset;
+        this.field[posY][posX] = new Field(posX, posY, offset, true);
 
         if (offset) {
             this.canvas.drawCircle(posX * 40 + 40, posY * 40 + 20, 20, "white", 0, "white");
@@ -108,6 +108,12 @@ class BubbleShooter {
     bindToHTML() {
         document.body.appendChild(this.canvas.canvas);
         document.body.appendChild(this.showArrowCanvas.canvas);
+        document.body.appendChild(this.showNextColor);
+        this.displayNextColor();
+    }
+
+    displayNextColor() {
+        this.showNextColor.innerHTML = this.nextBubble.color;
     }
 
     bindEventListeners() {
@@ -115,6 +121,30 @@ class BubbleShooter {
             var mousePos = this.showArrowCanvas.getMousePos(event);
             this.showArrowCanvas.clear();
             this.showArrowCanvas.drawLine(410, 820, mousePos.x, mousePos.y);
+
+            let m = (mousePos.y - 820) / (mousePos.x - 410);
+            let t = -420 * m + 820;
+
+            /*y1 = m * x1 + t;
+            m = (y1 - t) / x1;
+            y2 = m * x2 + t;
+            t = y1 - m * x1;
+            y2 = (y1 - t) / x1 * x2 + t;
+            y2 = m * x2 + y1 - m * x1;
+            m = (y2 - y1) / (x2 - x1);*/
+
+            if (mousePos.x < 410) {
+                this.showArrowCanvas.drawLine(410, 820, 0, t);
+                m = (-1) * m;
+                let x = (-t) / m;
+                this.showArrowCanvas.drawLine(0, t, x, 0);
+            } else {
+                let y = m * 820 + t;
+                this.showArrowCanvas.drawLine(410, 820, 820, y);
+                m = (-1) * m;
+                let x = (-t) / m;
+                this.showArrowCanvas.drawLine(820, y, x, 0);
+            }
         }.bind(this), false);
 
         this.showArrowCanvas.canvas.addEventListener("click", function(event) {
@@ -173,12 +203,21 @@ class BubbleShooter {
                 if (flagBreak) {
                     hit = Math.round(x / 40) - 1;
                     hitField = this.field[this.height - i][hit];
-                    hitField = this.field[this.height - i][hit] = new Field(hit, this.height - i, hitField.isOffset);
+                    this.nextBubble.x = hit;
+                    this.nextBubble.y = this.height - i;
+                    this.nextBubble.isOffset = hitField.isOffset;
+
+                    hitField = this.field[this.height - i][hit] = this.nextBubble;
+                    this.nextBubble = new Field(-1, -1, false);
+                    this.displayNextColor();
                     if (hitField.isOffset) {
                         this.canvas.drawCircle(hitField.x * 40 + 40, hitField.y * 40 + 20, 18, hitField.color, 0, hitField.color);
                     } else {
                         this.canvas.drawCircle(hitField.x * 40 + 20, hitField.y * 40 + 20, 18, hitField.color, 0, hitField.color);
                     }
+
+                    this.removeByHit(hitField.x, hitField.y);
+
                     break;
                 }
             } else {
