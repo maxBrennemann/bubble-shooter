@@ -191,14 +191,9 @@ class BubbleShooter {
                     hitField = this.field[this.height - i][hit] = this.nextBubble;
                     this.nextBubble = new Field(-1, -1, false);
                     this.displayNextColor();
-                    if (hitField.isOffset) {
-                        this.canvas.drawCircle(hitField.x * 40 + 40, hitField.y * 40 + 20, 18, hitField.color, 0, hitField.color);
-                    } else {
-                        this.canvas.drawCircle(hitField.x * 40 + 20, hitField.y * 40 + 20, 18, hitField.color, 0, hitField.color);
-                    }
 
-                    this.removeByHit(hitField.x, hitField.y);
-                    startAnimation([hitField.x * 40, hitField.y * 40, hitField.color]);
+                    initAnimation([hitField.x * 40, hitField.y * 40, hitField.color, hitField]);
+                    drawAnimation();
 
                     break;
                 }
@@ -206,6 +201,16 @@ class BubbleShooter {
                 console.log("negative number, implementation is coming soon");
             }
         }
+    }
+
+    continueShoot(hitField) {
+        if (hitField.isOffset) {
+            this.canvas.drawCircle(hitField.x * 40 + 40, hitField.y * 40 + 20, 18, hitField.color, 0, hitField.color);
+        } else {
+            this.canvas.drawCircle(hitField.x * 40 + 20, hitField.y * 40 + 20, 18, hitField.color, 0, hitField.color);
+        }
+
+        this.removeByHit(hitField.x, hitField.y);
     }
 
     checkColision(currX, currY, circleX, circleY, radius, margin) {
