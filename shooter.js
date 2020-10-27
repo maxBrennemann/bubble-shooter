@@ -124,15 +124,7 @@ class BubbleShooter {
 
             let m = (mousePos.y - 820) / (mousePos.x - 410);
             let t = -420 * m + 820;
-
-            /*y1 = m * x1 + t;
-            m = (y1 - t) / x1;
-            y2 = m * x2 + t;
-            t = y1 - m * x1;
-            y2 = (y1 - t) / x1 * x2 + t;
-            y2 = m * x2 + y1 - m * x1;
-            m = (y2 - y1) / (x2 - x1);*/
-
+            
             if (mousePos.x < 410) {
                 this.showArrowCanvas.drawLine(410, 820, 0, t);
                 m = (-1) * m;
@@ -142,20 +134,14 @@ class BubbleShooter {
                 let y = m * 820 + t;
                 this.showArrowCanvas.drawLine(410, 820, 820, y);
 
-                this.showArrowCanvas.drawLine(420, 820, 0, y);
-                this.showArrowCanvas.drawLine(820, y, 420, y - (820 - y));
-                
+                this.showArrowCanvas.drawLine(410, 820, 0, y);
+                this.showArrowCanvas.drawLine(820, y, 410, y - (820 - y));
             }
         }.bind(this), false);
 
         this.showArrowCanvas.canvas.addEventListener("click", function(event) {
             console.log("clicking");
             var mousePos = this.showArrowCanvas.getMousePos(event);
-
-            /*
-             var angle = Math.atan((800 - mousePos.y) / (Math.abs(420 - mousePos.x)));
-             console.log(angle * (180 / Math.PI));
-            */
 
             this.shoot(mousePos.x, mousePos.y)
         }.bind(this), false);
@@ -189,12 +175,6 @@ class BubbleShooter {
                             collides = this.checkColision(currX, currY, hitField.x * 40 + 20, hitField.y * 40 + 20, 18, -1);
                             collides = collides || this.checkColision(currX, currY, hitField.x * 40 + 20, hitField.y * 40 + 20, 18, 1);
                         }
-
-                        /*if (hitField.isOffset) {
-                            this.canvas.drawCircle(hitField.x * 40 + 40, hitField.y * 40 + 20, 20, "white", 0, "orange");
-                        } else {
-                            this.canvas.drawCircle(hitField.x * 40 + 20, hitField.y * 40 + 20, 20, "white", 0, "orange");
-                        }*/
                     }
 
                     if (collides)
@@ -218,6 +198,7 @@ class BubbleShooter {
                     }
 
                     this.removeByHit(hitField.x, hitField.y);
+                    startAnimation([hitField.x * 40, hitField.y * 40, hitField.color]);
 
                     break;
                 }
