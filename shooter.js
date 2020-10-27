@@ -14,6 +14,8 @@ class BubbleShooter {
         this.drawField();
         this.bindEventListeners();
 
+        this.audio = document.getElementById("bubbleplop");
+
         this.nextBubble = new Field(-1, -1, false);
     }
 
@@ -57,7 +59,7 @@ class BubbleShooter {
         }
     }
 
-    removeByHit(posX, posY) {
+    async removeByHit(posX, posY) {
         var currField = this.field[posY][posX];
 
         var isCheckedBuffer = [];
@@ -87,8 +89,15 @@ class BubbleShooter {
         }
 
         if (removeBuffer.length >= 3) {
+            function timer(ms) {
+                return new Promise(res => setTimeout(res, ms));
+            }
+
             for (var i = 0; i < removeBuffer.length; i++) {
                 this.remove(removeBuffer[i].x, removeBuffer[i].y);
+                this.audio.currentTime = 0;
+                this.audio.play();
+                await timer(150);
             }
         }
     }
@@ -118,7 +127,7 @@ class BubbleShooter {
 
     bindEventListeners() {
         this.showArrowCanvas.canvas.addEventListener("mousemove", function(event) {
-            var mousePos = this.showArrowCanvas.getMousePos(event);
+            /*var mousePos = this.showArrowCanvas.getMousePos(event);
             this.showArrowCanvas.clear();
             this.showArrowCanvas.drawLine(410, 820, mousePos.x, mousePos.y);
 
@@ -136,7 +145,7 @@ class BubbleShooter {
 
                 this.showArrowCanvas.drawLine(410, 820, 0, y);
                 this.showArrowCanvas.drawLine(820, y, 410, y - (820 - y));
-            }
+            }*/
         }.bind(this), false);
 
         this.showArrowCanvas.canvas.addEventListener("click", function(event) {

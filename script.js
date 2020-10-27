@@ -27,14 +27,6 @@ async function drawAnimation() {
     let m = (args.ypos - 820) / (args.xpos - 410);
     let t = -420 * m + 820;
 
-    /*if (args.currx == 0) {
-        args.currx = 410;
-        args.curry = m * args.currx + t;
-    } else {
-        args.currx = args.currx - 5;
-        args.curry = m * args.currx + t;
-    }*/
-
     if (args.currx == 0) {
         args.currx = 410;
         args.curry = 820;
