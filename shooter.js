@@ -141,9 +141,10 @@ class BubbleShooter {
             } else {
                 let y = m * 820 + t;
                 this.showArrowCanvas.drawLine(410, 820, 820, y);
-                m = (-1) * m;
-                let x = (-t) / m;
-                this.showArrowCanvas.drawLine(820, y, x, 0);
+
+                this.showArrowCanvas.drawLine(420, 820, 0, y);
+                this.showArrowCanvas.drawLine(820, y, 420, y - (820 - y));
+                
             }
         }.bind(this), false);
 
