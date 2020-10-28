@@ -36,7 +36,7 @@ async function drawAnimation() {
     }
 
     console.log(args.curry + " " + args.ypos);
-    if (args.curry > args.ypos) {
+    if (args.curry + 40 > args.ypos + 40) {
         global.shooter.showArrowCanvas.clear();
         global.shooter.showArrowCanvas.drawCircle(args.currx, args.curry, 18, args.color, 0, args.color);
         window.requestAnimationFrame(drawAnimation);

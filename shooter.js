@@ -82,6 +82,8 @@ class BubbleShooter {
                 }
 
                 removeBuffer.push(currElement);
+                /* quick fix, field is set to be invisible here, so removal loop does not have to check for */
+                currElement.isEmpty = true;
             }
 
             isCheckedBuffer.push(currElement);
@@ -93,6 +95,13 @@ class BubbleShooter {
                 return new Promise(res => setTimeout(res, ms));
             }
 
+            let unconnectedFields = this.checkConnected();
+            if (unconnectedFields.length != 0) {
+                removeBuffer.push(...unconnectedFields);
+            }
+
+            await timer(150);
+
             for (var i = 0; i < removeBuffer.length; i++) {
                 this.remove(removeBuffer[i].x, removeBuffer[i].y);
                 this.audio.currentTime = 0;
@@ -100,6 +109,60 @@ class BubbleShooter {
                 await timer(150);
             }
         }
+    }
+
+    getConnected() {
+        var field = [];
+        var element;
+
+        for (let i = 0; i < this.field.length; i++) {
+            for (let n = 0; n < this.field[i].length; n++) {
+                element = this.field[i][n];
+                if (element.isConnected == false && !element.isEmpty) {
+                    field.push(element);
+                }
+                element.isConnected = false;
+            }
+        }
+
+        console.log(field);
+        return field;
+    }
+
+    /* checks which bubbles are connected to the top */
+    checkConnected() {
+        var connectedBuffer = [];
+        var toCheckBuffer = [this.field[0][0]];
+        this.field[0][0].isConnected = true;
+
+        var currElement;
+        var neighbors;
+        while (toCheckBuffer.length > 0) {
+            currElement = toCheckBuffer[0];
+
+            if (currElement.y == 0) {
+                connectedBuffer.push(currElement);
+            }
+
+            neighbors = currElement.getNeighbors(true);
+            for (let i = 0; i < neighbors.length; i++) {
+                if (!connectedBuffer.includes(neighbors[i])) {
+                    connectedBuffer.push(neighbors[i]);
+                    toCheckBuffer.push(neighbors[i]);
+                    
+                    neighbors[i].isConnected = true;
+                    /*if (neighbors[i].isOffset) {
+                        this.canvas.drawCircle(neighbors[i].x * 40 + 40, neighbors[i].y * 40 + 20, 18, "#f2028a", 0, "#f2028a");
+                    } else {
+                        this.canvas.drawCircle(neighbors[i].x * 40 + 20, neighbors[i].y * 40 + 20, 18, "#f2028a", 0, "#f2028a");
+                    }*/
+                }
+            }
+
+            toCheckBuffer.shift();
+        }
+
+        return this.getConnected();
     }
 
     /* removes a specific field from the field array */
@@ -178,11 +241,11 @@ class BubbleShooter {
                     if (hitField != null && !hitField.isEmpty) {
 
                         if (hitField.isOffset) {
-                            collides = this.checkColision(currX, currY, hitField.x * 40 + 40, hitField.y * 40 + 20, 18, -1);
-                            collides = collides || this.checkColision(currX, currY, hitField.x * 40 + 40, hitField.y * 40 + 20, 18, 1);
+                            collides = this.checkColision(currX, currY, hitField.x * 40 + 40, hitField.y * 40 + 20, 16, -1);
+                            collides = collides || this.checkColision(currX, currY, hitField.x * 40 + 40, hitField.y * 40 + 20, 16, 1);
                         } else {
-                            collides = this.checkColision(currX, currY, hitField.x * 40 + 20, hitField.y * 40 + 20, 18, -1);
-                            collides = collides || this.checkColision(currX, currY, hitField.x * 40 + 20, hitField.y * 40 + 20, 18, 1);
+                            collides = this.checkColision(currX, currY, hitField.x * 40 + 20, hitField.y * 40 + 20, 16, -1);
+                            collides = collides || this.checkColision(currX, currY, hitField.x * 40 + 20, hitField.y * 40 + 20, 16, 1);
                         }
                     }
 
@@ -249,6 +312,7 @@ class Field {
         this.y = posY;
         this.isOffset = isOffset;
         this.isEmpty = isEmpty == null ? false : isEmpty;
+        this.isConnected = false;
 
         if (!this.isEmpty)
             this.color = this.getRandomColor();
@@ -281,7 +345,7 @@ class Field {
         return colorArr[random];
     }
 
-    getNeighbors() {
+    getNeighbors(checkEmpty = false) {
         var neighbors = [];
         var neighborsPos = this.isOffset ? this.neighborsPosOffset : this.neighborsPosNoOffset;
 
@@ -291,7 +355,12 @@ class Field {
             if (posY >= 0 && posY < global.shooter.field.length) {
                 var currField = global.shooter.field[posY][posX];
                 if (currField != undefined) {
-                    neighbors.push(currField);
+                    if (checkEmpty) {
+                        if (!currField.isEmpty)
+                            neighbors.push(currField);
+                    } else {
+                        neighbors.push(currField);
+                    }
                 }
             }
         }
