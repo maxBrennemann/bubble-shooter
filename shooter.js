@@ -178,9 +178,9 @@ class BubbleShooter {
     }
 
     bindToHTML() {
-        document.body.appendChild(this.canvas.canvas);
-        document.body.appendChild(this.showArrowCanvas.canvas);
-        document.body.appendChild(this.showNextColor);
+        document.getElementById("canvas-container").appendChild(this.canvas.canvas);
+        document.getElementById("canvas-container").appendChild(this.showArrowCanvas.canvas);
+        document.getElementById("canvas-container").appendChild(this.showNextColor);
         this.displayNextColor();
     }
 
